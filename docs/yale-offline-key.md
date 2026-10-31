@@ -5,17 +5,24 @@ ESP32 behöver två uppgifter som Yale Home använder för lokal Bluetooth-åtko
 - **Offline key:** 16 byte, anges som 32 hextecken utan mellanslag.
 - **Slot / key index:** ett heltal 0–255 som hör till samma nyckel och lås.
 
-Yale Home visar normalt inte dessa värden i appens gränssnitt. Bluetooth-parning i telefonens systeminställningar ger dem inte heller. Metoderna nedan bygger på [Home Assistants dokumentation för Yale Access Bluetooth](https://www.home-assistant.io/integrations/yalexs_ble/). Appversioner och lagringsformat kan ändras.
+**Det går inte att se nyckeln eller slot-numret direkt i Yale Home-appen.** Bluetooth-parning i telefonens systeminställningar ger dem inte heller. Välj väg efter vad du vill använda:
 
-## iPhone: via lokal säkerhetskopia
+| Mål | Enklaste vägen |
+| --- | --- |
+| Lås i Apple Hem utan att läsa råa nycklar | Använd [Yale Home + Yale Access Bluetooth i Home Assistant](https://www.home-assistant.io/integrations/yalexs_ble/) och dela låset med [HomeKit Bridge](https://www.home-assistant.io/integrations/homekit/). Home Assistant kan hämta offline-nyckeln automatiskt om kontot och låset stöds. ESP32 kan då användas som Bluetooth-proxy om Home Assistant behöver bättre räckvidd. |
+| Just denna fristående ESP32-firmware | Du måste ange rå **key** och **slot** i adminvyn. Yale Home har ingen enkel exportknapp. Se alternativen nedan. |
+
+Home Assistants automatiska nyckelhämtning ger inte en nyckel som kan kopieras från dess vanliga gränssnitt till denna firmware. Den är därför främst en enklare **alternativ arkitektur**, inte ett automatiskt installationssteg för nuvarande ESP32-program.
+
+## iPhone: via lokal säkerhetskopia (främst Yale Access/August)
 
 1. Öppna **Yale Home** på din iPhone. Kontrollera att låset visas och att ditt konto kan styra det. Ett separat ägarkonto för ESP32 är lämpligt, eftersom appanvändning kan rotera offline-nyckeln.
 2. Öppna låsets inställningar i appen och aktivera **Auto-Unlock** under **Automation**. Använd Auto-Unlock minst en gång vid låset. Enligt Home Assistants guide sparas nyckeln då lokalt i appen. [Yales guide till Auto-Unlock](https://www.yalehome.com/au/en/documents/technical-downloads/smart-locks/yale-home/yale-home-app-guide.pdf) visar funktionen.
-3. Gör en **lokal** säkerhetskopia av iPhone på din Mac eller PC. Använd ett verktyg som kan läsa appfiler ur säkerhetskopian, exempelvis iMazing eller iPhone Backup Extractor. Välj Yale Home/Yale Access-appens filer och leta i `Library/Preferences` efter en `.plist` som innehåller `key` och `slot` för ditt lås. Öppna binär `.plist` i en plist-läsare (t.ex. Xcode); en vanlig textredigerare visar inte alltid innehållet.
+3. Gör en **lokal** säkerhetskopia av iPhone på din Mac eller PC. Använd ett verktyg som kan läsa appfiler ur säkerhetskopian, exempelvis iMazing eller iPhone Backup Extractor. Home Assistants dokumenterade metod gäller **Yale Access/August-appen**: leta i appens `Library/Preferences` efter en `.plist` som innehåller `key` och `slot` för ditt lås. Öppna binär `.plist` i en plist-läsare (t.ex. Xcode); en vanlig textredigerare visar inte alltid innehållet. För den nyare **Yale Home-appen på iPhone är detta inte garanterat**.
 4. Kopiera **key och slot från samma låspost**. Om nyckeln visas som bytes eller base64, konvertera de 16 byten till 32 hextecken. Skriv inte ut dem i terminalhistorik, skärmbilder, supportärenden eller GitHub.
 5. Logga in på ESP32:s adminsida, välj låset under **Sök BLE-enheter**, klistra in nyckeln i **Offline key**, ange slot i **Key index / slot** och spara. Kontrollera att status blir **Ansluten** och att låsstatus visas.
 
-Om nyckeln saknas i säkerhetskopian: kontrollera att Auto-Unlock verkligen utlöstes minst en gång, gör en ny säkerhetskopia och prova igen. Om ditt Yale Home-konto kan anslutas till Home Assistant kan dess Yale-integration i vissa fall hämta offline-uppgifter automatiskt; se den länkade Home Assistant-guiden.
+Om nyckeln saknas i säkerhetskopian: kontrollera att Auto-Unlock verkligen utlöstes minst en gång och gör en ny säkerhetskopia. Om du använder Yale Home på iPhone och ingen key/slot finns i appens filer, utgå inte från att iPhone-metoden fungerar för din appversion.
 
 ## Android: kräver root
 

@@ -5,7 +5,7 @@ ESP32 ansluter lokalt till en Yale Access Module via Bluetooth och visar låset 
 ## Du behöver
 
 - ESP32 med BLE, 2,4 GHz Wi‑Fi och minst 4 MB flash (testad med ESP32-D0WD-V3).
-- Ett kompatibelt Yale/August-lås med FE24 BLE-tjänsten och din egen **offline key** och **slot**. [Så hämtar du uppgifterna](docs/yale-offline-key.md).
+- Ett kompatibelt Yale/August-lås med FE24 BLE-tjänsten och din egen **offline key** och **slot**. Yale Home visar inte dessa direkt i appen. [Se vilka alternativ som faktiskt finns](docs/yale-offline-key.md).
 - Apple Hem på iPhone/iPad och ett nät där telefon och ESP32 kan nå varandra.
 
 ## Installera via USB första gången
