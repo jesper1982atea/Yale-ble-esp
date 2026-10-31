@@ -5,14 +5,14 @@ ESP32 behöver två uppgifter som Yale Home använder för lokal Bluetooth-åtko
 - **Offline key:** 16 byte, anges som 32 hextecken utan mellanslag.
 - **Slot / key index:** ett heltal 0–255 som hör till samma nyckel och lås.
 
-**Det går inte att se nyckeln eller slot-numret direkt i Yale Home-appen.** Bluetooth-parning i telefonens systeminställningar ger dem inte heller. Välj väg efter vad du vill använda:
+**Det går inte att se nyckeln eller slot-numret direkt i Yale Home-appen.** Bluetooth-parning i telefonens systeminställningar ger dem inte heller. ESP32 är tänkt att ersätta Yale Connect Bridge: den styr låset lokalt via BLE och behöver inte Yales brygga för själva låskommandona.
 
 | Mål | Enklaste vägen |
 | --- | --- |
-| Lås i Apple Hem utan att läsa råa nycklar | Använd [Yale Home + Yale Access Bluetooth i Home Assistant](https://www.home-assistant.io/integrations/yalexs_ble/) och dela låset med [HomeKit Bridge](https://www.home-assistant.io/integrations/homekit/). Home Assistant kan hämta offline-nyckeln automatiskt om kontot och låset stöds. ESP32 kan då användas som Bluetooth-proxy om Home Assistant behöver bättre räckvidd. |
+| Lås i Apple Hem via Home Assistant | [Yale Access Bluetooth](https://www.home-assistant.io/integrations/yalexs_ble/) kan styra lokalt via BLE och dess [Yale Home-integration](https://www.home-assistant.io/integrations/yale) kan ibland hämta offline-nyckeln. En ESP32 kan då vara Bluetooth-proxy. Detta kräver en Home Assistant-server och ger inte automatiskt nyckeln till vår fristående firmware. Yale Home-molnintegrationen anger att många modeller behöver en Connect Bridge eller dörrklocka för molnstyrning. |
 | Just denna fristående ESP32-firmware | Du måste ange rå **key** och **slot** i adminvyn. Yale Home har ingen enkel exportknapp. Se alternativen nedan. |
 
-Home Assistants automatiska nyckelhämtning ger inte en nyckel som kan kopieras från dess vanliga gränssnitt till denna firmware. Den är därför främst en enklare **alternativ arkitektur**, inte ett automatiskt installationssteg för nuvarande ESP32-program.
+Home Assistants automatiska nyckelhämtning ger inte en nyckel som kan kopieras från dess vanliga gränssnitt till denna firmware. För att göra **vår ESP32** lika enkel att konfigurera behövs en separat, godkänd Yale Home-inloggning som hämtar `OfflineKeys` från kontot och sparar rätt key/slot i ESP32. Det kräver OAuth-klientuppgifter från Yale och kan därför inte lösas genom att lägga ett Yale-lösenord eller ett delat klienthemlighet i öppen firmware. Se [Yales OAuth-dokumentation](https://userguide-developer.aaecosystem.com/oauth/oauth-dance-steps-start-here.html).
 
 ## iPhone: via lokal säkerhetskopia (främst Yale Access/August)
 
