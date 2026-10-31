@@ -1,0 +1,7 @@
+Yale BLE HomeKit Bridge
+
+Bluetooth-protokollet har porterats med Yale-Libs/yalexs-ble som referens.
+yalexs-ble: Copyright Yale-Libs contributors, Apache License 2.0.
+https://github.com/Yale-Libs/yalexs-ble
+
+Yale och HomeKit är varumärken som tillhör respektive ägare. Detta är ett fristående projekt.

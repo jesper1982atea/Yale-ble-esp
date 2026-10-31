@@ -1,0 +1,37 @@
+name: Firmware release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Installera ESP32 och bibliotek
+        run: |
+          arduino-cli core update-index --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core install esp32:esp32@3.3.12 --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli lib install 'HomeSpan@2.1.8' 'NimBLE-Arduino@2.5.2'
+      - name: Kontrollera tagg och bygg firmware
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          grep -Fq "YALE_FW_VERSION[] = \"${version}\"" YaleBleHomeKit/YaleBleHomeKit.ino
+          arduino-cli compile -b esp32:esp32:esp32:PartitionScheme=no_fs --output-dir dist YaleBleHomeKit
+          mv dist/YaleBleHomeKit.ino.bin dist/YaleBleHomeKit.bin
+          size=$(wc -c < dist/YaleBleHomeKit.bin | tr -d ' ')
+          test "$size" -le 2031616
+          hash=$(sha256sum dist/YaleBleHomeKit.bin | cut -d ' ' -f 1)
+          printf 'version=%s\nsize=%s\nsha256=%s\n' "$version" "$size" "$hash" > dist/manifest.txt
+      - name: Publicera GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/YaleBleHomeKit.bin dist/manifest.txt --title "$GITHUB_REF_NAME" --generate-notes --verify-tag
